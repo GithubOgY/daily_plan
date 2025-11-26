@@ -1,0 +1,80 @@
+{
+  "version": "1.0",
+  "description": "納品指示書作成用初期設定ファイル",
+  "settings": {
+    "use_google_maps_mcp": true,
+    "default_transport_mode": "driving",
+    "default_departure_time": "15:00",
+    "loading_time_minutes": 20,
+    "unloading_time_minutes": 20,
+    "delivery_work_time_minutes": 20,
+    "date_format": "YYYY/MM/DD",
+    "delivery_date_filter": {
+      "mode": "before_or_equal",
+      "description": "納期が本日以前（本日を含む）の品目を抽出"
+    }
+  },
+  "delivery_locations": {
+    "JPF": {
+      "name": "JPF",
+      "address": "滋賀県守山市勝部町４−７９９ ２０B棟G棟",
+      "category": "納品先",
+      "building": "20B棟G棟",
+      "notes": "受取担当者に確認"
+    }
+  },
+  "departure_locations": {
+    "あじさい園": {
+      "name": "あじさい園",
+      "address": "滋賀県守山市石田町364番地の２",
+      "category": "出発地",
+      "default": true
+    }
+  },
+  "data_structure": {
+    "columns": [
+      "Item ID",
+      "Product Description",
+      "Specifications/Details",
+      "Date",
+      "Quantity"
+    ],
+    "column_mapping": {
+      "Item ID": "品番",
+      "Product Description": "品名",
+      "Specifications/Details": "規格",
+      "Date": "納期",
+      "Quantity": "数量"
+    },
+    "date_column": "Date",
+    "quantity_column": "Quantity"
+  },
+  "template": {
+    "format": "markdown",
+    "sections": [
+      "基本情報",
+      "納品品目一覧",
+      "納品品目サマリー",
+      "移動ルート詳細",
+      "スケジュール",
+      "注意事項",
+      "連絡先"
+    ],
+    "include_google_maps_calculation": true,
+    "include_summary": true,
+    "include_route_details": true
+  },
+  "summary_settings": {
+    "group_by": ["品番", "品名", "規格"],
+    "calculate_total": true,
+    "group_by_delivery_date": true
+  },
+  "default_notes": [
+    "納品前に品目リストと数量を確認",
+    "品番、規格、数量が正確か確認",
+    "受取確認書の記入",
+    "納品品目の確認",
+    "数量の確認"
+  ]
+}
+

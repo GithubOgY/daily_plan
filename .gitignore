@@ -1,0 +1,49 @@
+# OS関連
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# エディタ関連
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 一時ファイル
+*.tmp
+*.log
+*.bak
+*.cache
+
+# 環境変数ファイル（機密情報を含む可能性があるため）
+.env
+.env.local
+.env.*.local
+
+# 個人情報や機密情報を含む可能性のあるファイル
+# 必要に応じて追加してください
+# *秘密情報*
+# *個人情報*
+
+# バックアップファイル
+*.backup
+*_backup.*
+
+# Python関連（もしPythonスクリプトを追加する場合）
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# Node.js関連（もしNode.jsスクリプトを追加する場合）
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+

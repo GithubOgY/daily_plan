@@ -1,0 +1,79 @@
+{
+  "version": "1.0",
+  "description": "一日の予定作成用初期設定ファイル",
+  "user_profile": {
+    "occupation": {
+      "primary": "職業指導員",
+      "workplace_type": "障害者の就労継続支援B型事業所",
+      "additional_roles": [
+        {
+          "role": "相談支援専門員",
+          "workplace_type": "特定相談支援事業所"
+        }
+      ],
+      "main_activities": [
+        "障害者の面談",
+        "就労支援のための生産活動"
+      ]
+    }
+  },
+  "settings": {
+    "use_google_maps_mcp": true,
+    "default_transport_mode": "driving",
+    "rush_hour_buffer_minutes": 30
+  },
+  "locations": {
+    "自宅": {
+      "name": "自宅",
+      "address": "滋賀県守山市播磨田町280-85",
+      "category": "居住地"
+    },
+    "実家": {
+      "name": "実家",
+      "address": "滋賀県守山市播磨田町705-129",
+      "category": "居住地"
+    },
+    "あじさい園": {
+      "name": "あじさい園",
+      "address": "滋賀県守山市石田町364番地の２",
+      "category": "施設"
+    },
+    "叔父宅": {
+      "name": "叔父宅",
+      "address": "京都府京都市山科区東野門口町1-19",
+      "category": "居住地"
+    },
+    "チャーム山科": {
+      "name": "チャーム山科",
+      "address": "京都府京都市山科区大宅石郡町１１６",
+      "category": "商業施設"
+    },
+    "JPF": {
+      "name": "JPF",
+      "address": "滋賀県守山市勝部町４−７９９ ２０B棟G棟",
+      "category": "施設"
+    },
+    "コーメー": {
+      "name": "コーメー",
+      "address": "滋賀県湖南市石部北１丁目３−５",
+      "category": "商業施設"
+    },
+    "音羽病院": {
+      "name": "音羽病院",
+      "address": "京都府京都市山科区音羽珍事町２",
+      "category": "医療施設"
+    }
+  },
+  "template": {
+    "schedule_format": "markdown",
+    "include_google_maps_calculation": true,
+    "default_sections": [
+      "基本情報",
+      "今日のタスク",
+      "スケジュール",
+      "詳細メモ",
+      "注意事項"
+    ]
+  }
+}
+

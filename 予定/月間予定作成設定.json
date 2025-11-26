@@ -1,0 +1,161 @@
+{
+  "version": "1.0",
+  "description": "月間予定作成用初期設定ファイル",
+  "settings": {
+    "data_source": {
+      "type": "業務日誌",
+      "format": ["PDF", "テキスト"],
+      "description": "業務日誌から月間予定を抽出"
+    },
+    "output_file_format": "YYYY-MM_月間予定.md",
+    "output_directory": "予定"
+  },
+  "extraction": {
+    "include_sections": [
+      "その他の予定・報告事項",
+      "特記"
+    ],
+    "exclude_sections": [
+      "通所者数",
+      "通所者氏名",
+      "車両使用予定",
+      "配布物・文書",
+      "来園者",
+      "作業",
+      "午前",
+      "午後"
+    ],
+    "exclude_keywords": [
+      "報告",
+      "周知",
+      "確認",
+      "検討",
+      "依頼",
+      "連絡",
+      "受理",
+      "配車のボード",
+      "マイナ免許証",
+      "電話したが",
+      "目じりの内出血治っている"
+    ],
+    "description": "その他の予定・報告事項と特記のみを抽出し、報告事項は除外"
+  },
+  "formatting": {
+    "output_format": "一行形式",
+    "format_template": "日付（曜日）　時刻　対象者　内容　備考",
+    "example": "11月18日（火）　16:00　寺田　歯科通院　家庭から迎え。園バス乗らない。",
+    "date_separators": false,
+    "description": "日付ごとの区切り（### 11月X日（X）や---）は不要。一行形式で表示"
+  },
+  "date_processing": {
+    "split_multiple_dates": true,
+    "description": "複数の日付を含む予定は分離する（例：11月12日と11月14日の予定を分ける）",
+    "example": {
+      "input": "11月12日（水）　一守　遅刻→欠席 SIHで歯科受診後登園 11/14(木)登園予定",
+      "output": [
+        "11月12日（水）　一守　遅刻→欠席 SIHで歯科受診後登園",
+        "11月14日（木）　一守　登園予定"
+      ]
+    },
+    "separate_by_month": true,
+    "description": "11月の予定と12月の予定は分ける",
+    "month_sections": {
+      "current_month": "月間スケジュール",
+      "next_month": "12月の予定"
+    }
+  },
+  "content_rules": {
+    "date_extraction": {
+      "rule": "日付が含まれる場合は、その日付を正しいセクションに配置",
+      "example": {
+        "input": "11月14日（金）　12月24日（水）　田中　出席（要送迎）",
+        "output": "12月24日（水）　田中　出席（要送迎）"
+      }
+    },
+    "report_exclusion": {
+      "rule": "報告事項は月間予定に含めない",
+      "examples": [
+        "配車のボード作り直し",
+        "マイナ免許証に切り替え",
+        "給与見直し＆賞与減額について職員に周知",
+        "不二電機 大量の不適合品発生。不適合品の処置及び、流出防止、再発防止策を検討"
+      ]
+    }
+  },
+  "template": {
+    "format": "markdown",
+    "sections": [
+      "基本情報",
+      "月間スケジュール",
+      "12月の予定",
+      "注意事項",
+      "月間まとめ"
+    ],
+    "basic_info": {
+      "include": [
+        "月",
+        "対象施設",
+        "総利用者数"
+      ]
+    },
+    "monthly_summary": {
+      "include": [
+        "定期的な予定",
+        "重要なイベント",
+        "職員の重要な予定",
+        "重要な報告事項",
+        "利用者の健康管理",
+        "注意事項"
+      ]
+    }
+  },
+  "data_structure": {
+    "業務日誌": {
+      "sections": {
+        "その他の予定・報告事項": {
+          "description": "職員の予定、来園者、イベント、会議、研修など",
+          "extract": true
+        },
+        "特記": {
+          "description": "利用者の欠席、遅刻、早退、中抜け、通院、体調不良など",
+          "extract": true
+        },
+        "通所者数": {
+          "description": "通所者数/総利用者数",
+          "extract": false
+        },
+        "通所者氏名": {
+          "description": "通所者の氏名リスト",
+          "extract": false
+        },
+        "車両使用予定": {
+          "description": "ハイゼット、セレナ、キャラバン、ハイエース、トラックの使用予定",
+          "extract": false
+        }
+      }
+    }
+  },
+  "validation": {
+    "required_fields": [
+      "日付",
+      "内容"
+    ],
+    "date_format": "YYYY年MM月DD日（曜日）",
+    "time_format": "HH:MM または HH:MM-HH:MM"
+  },
+  "examples": {
+    "valid_entries": [
+      "11月18日（火）　16:00　寺田　歯科通院　家庭から迎え。園バス乗らない。",
+      "11月14日（金）　13:30　避難訓練（ガス漏れ想定）",
+      "11月21日（金）　14:30　園内勤労表彰式",
+      "12月24日（水）　田中　出席（要送迎）"
+    ],
+    "invalid_entries": [
+      "11月12日（水）　配車のボード作り直し 慣れるまで使いにくいと思いますが...",
+      "11月14日（金）　マイナ免許証に切り替え、更新された方は...",
+      "11月10日（月）　給与見直し＆賞与減額について職員に周知"
+    ]
+  }
+}
+
+
