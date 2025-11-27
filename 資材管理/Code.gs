@@ -111,11 +111,13 @@ function getListFromSheet(sheetName) {
   try {
     const sheet = getSheet(sheetName);
     const values = sheet.getDataRange().getValues();
+    const displayValues = sheet.getDataRange().getDisplayValues(); // 表示値として取得（先頭ゼロ保持）
     const list = [];
     
     // 1行目はヘッダーなのでスキップ
     for (let i = 1; i < values.length; i++) {
-      const id = values[i][0];
+      // IDは表示値を使用（先頭ゼロを保持）、名前は通常の値を使用
+      const id = displayValues[i][0];
       const name = values[i][1];
       if (id && name) {
         list.push({ id: String(id).trim(), name: String(name).trim() });
@@ -855,14 +857,32 @@ function getMaterialName(matId) {
   
   try {
     const sheet = getSheet(SHEET_NAMES.MATERIALS);
-    const data = sheet.getDataRange().getValues();
-    const normalizedMatId = String(matId).trim();
+    const displayValues = sheet.getDataRange().getDisplayValues();
+    const values = sheet.getDataRange().getValues();
+    const normalizedMatId = String(matId).trim().toUpperCase();
     
-    for (let i = 1; i < data.length; i++) {
-      if (String(data[i][0]).trim() === normalizedMatId) {
-        return data[i][1] ? String(data[i][1]).trim() : null;
+    // 入力IDが数値のみかチェック
+    const inputIsNumeric = /^[0-9]+$/.test(normalizedMatId);
+    const inputAsNumber = inputIsNumeric ? parseInt(normalizedMatId, 10) : null;
+    
+    for (let i = 1; i < displayValues.length; i++) {
+      const cellId = String(displayValues[i][0]).trim().toUpperCase();
+      
+      // 1. 完全一致で比較
+      if (cellId === normalizedMatId) {
+        return values[i][1] ? String(values[i][1]).trim() : null;
+      }
+      
+      // 2. 両方が数値の場合、数値として比較（先頭ゼロ対応）
+      if (inputIsNumeric && /^[0-9]+$/.test(cellId)) {
+        const cellAsNumber = parseInt(cellId, 10);
+        if (inputAsNumber === cellAsNumber) {
+          return values[i][1] ? String(values[i][1]).trim() : null;
+        }
       }
     }
+    
+    Logger.log(`資材ID \"${matId}\" に対応する資材名が見つかりませんでした`);
     return null;
   } catch (error) {
     Logger.log(`getMaterialName エラー: ${error.message}`);
