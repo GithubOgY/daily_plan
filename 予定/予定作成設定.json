@@ -2,13 +2,30 @@
   "version": "1.0",
   "description": "一日の予定作成用初期設定ファイル",
   "user_profile": {
+    "name": "小川",
     "occupation": {
       "primary": "職業指導員",
       "workplace_type": "障害者の就労継続支援B型事業所",
       "additional_roles": [
         {
           "role": "相談支援専門員",
-          "workplace_type": "特定相談支援事業所"
+          "workplace_type": "特定相談支援事業所",
+          "main_activities": [
+            "サービス利用計画書の策定",
+            "相談支援業務"
+          ],
+          "service_plan_creation": {
+            "description": "サービス利用計画書の策定",
+            "required_reference_materials": [
+              "受給者証",
+              "基礎調査票",
+              "嗜好調査",
+              "工賃評価",
+              "就労Bの契約",
+              "個別支援計画"
+            ],
+            "notes": "サービス利用計画書を作成する際は、上記の参考資料を必ず確認すること"
+          }
         }
       ],
       "main_activities": [
