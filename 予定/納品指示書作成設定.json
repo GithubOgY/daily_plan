@@ -10,8 +10,8 @@
     "delivery_work_time_minutes": 20,
     "date_format": "YYYY/MM/DD",
     "delivery_date_filter": {
-      "mode": "equal",
-      "description": "納期が本日（指定日）の品目のみを抽出"
+      "mode": "before_or_equal",
+      "description": "納期が本日以前（本日を含む）の品目を抽出"
     }
   },
   "delivery_locations": {

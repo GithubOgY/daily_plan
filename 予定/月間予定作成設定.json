@@ -1,9 +1,6 @@
 {
   "version": "1.0",
   "description": "月間予定作成用初期設定ファイル",
-  "user_profile": {
-    "name": "小川"
-  },
   "settings": {
     "data_source": {
       "type": "業務日誌",
