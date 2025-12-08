@@ -38,3 +38,5 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 - プッシュは `daily_plan` リポジトリに対してのみ実行されます
 - エラーが発生した場合は、スクリプトは停止します
 
+
+
