@@ -12,6 +12,29 @@
     "delivery_date_filter": {
       "mode": "before_or_equal",
       "description": "納期が本日以前（本日を含む）の品目を抽出"
+    },
+    "google_maps_apis": {
+      "places_api_new": true,
+      "geocoding_api": true,
+      "directions_api": true,
+      "distance_matrix_api": true
+    },
+    "api_descriptions": {
+      "places_api_new": "Places API (New) - 場所の検索に使用",
+      "geocoding_api": "Geocoding API - 住所変換などに必要",
+      "directions_api": "Directions API - 経路検索に必要",
+      "distance_matrix_api": "Distance Matrix API - 距離計算に必要"
+    },
+    "fuel_cost": {
+      "enabled": true,
+      "fuel_cost_per_km": 15,
+      "unit": "円/km",
+      "description": "使用車両の燃費は1kmあたり15円に設定"
+    },
+    "display_settings": {
+      "include_distance": true,
+      "include_fuel_cost": true,
+      "include_fuel_efficiency": true
     }
   },
   "delivery_locations": {
