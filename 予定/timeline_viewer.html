@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年12月11日 タイムライン</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        h1 { text-align: center; color: #333; }
+        .canvas-container { 
+            display: flex; 
+            justify-content: center; 
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        canvas { 
+            background: #fff; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            border-radius: 8px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .legend-item { display: flex; align-items: center; }
+        .legend-color { width: 15px; height: 15px; margin-right: 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>2025年12月11日 スケジュール</h1>
+    <div class="canvas-container">
+        <canvas id="timelineCanvas" width="800" height="600"></canvas>
+    </div>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#a3d5ff"></div>業務 (あじさい園)</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffb3ba"></div>移動/納品外出</div>
+        <div class="legend-item"><div class="legend-color" style="background:#baffc9"></div>休憩/食事</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffffba"></div>プライベート</div>
+    </div>
+
+    <script>
+        const schedule = [
+            { start: "08:15", end: "09:15", title: "園車送迎", type: "work" },
+            { start: "09:15", end: "09:30", title: "朝礼", type: "work" },
+            { start: "09:30", end: "12:00", title: "事務・積載", type: "work" },
+            { start: "12:00", end: "12:45", title: "面談", type: "work" },
+            { start: "12:45", end: "13:00", title: "昼食", type: "break" },
+            { start: "13:00", end: "15:30", title: "バイタル", type: "work" },
+            { start: "15:30", end: "17:00", title: "JPF・コーメー納品", type: "move" },
+            { start: "17:00", end: "17:15", title: "帰宅移動", type: "move" },
+            { start: "17:15", end: "18:30", title: "雑用・食事", type: "private" },
+            { start: "18:30", end: "19:30", title: "叔父宅へ移動", type: "move" },
+            { start: "19:30", end: "20:00", title: "叔父宅", type: "private" },
+            { start: "20:00", end: "24:00", title: "就寝", type: "private" } // Extended for visualization
+        ];
+
+        const colors = {
+            work: "#a3d5ff",
+            move: "#ffb3ba",
+            break: "#baffc9",
+            private: "#ffffba"
+        };
+
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        const canvas = document.getElementById('timelineCanvas');
+        const ctx = canvas.getContext('2d');
+        const startHour = 8;
+        const endHour = 21; // Display until 21:00
+        const totalMinutes = (endHour - startHour) * 60;
+        
+        // Layout settings
+        const padding = 60;
+        const graphHeight = canvas.height - padding * 2;
+        const graphWidth = 200; // Width of the bar
+        const xOffset = (canvas.width - graphWidth) / 2;
+
+        function drawTimeline() {
+            // Draw axis line
+            ctx.beginPath();
+            ctx.moveTo(xOffset - 20, padding);
+            ctx.lineTo(xOffset - 20, canvas.height - padding);
+            ctx.strokeStyle = "#666";
+            ctx.stroke();
+
+            // Draw hour markers
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.font = "14px Arial";
+            ctx.fillStyle = "#333";
+
+            for (let h = startHour; h <= endHour; h++) {
+                const y = padding + ((h - startHour) * 60 / totalMinutes) * graphHeight;
+                ctx.fillText(h + ":00", xOffset - 30, y);
+                
+                // Grid line
+                ctx.beginPath();
+                ctx.moveTo(xOffset - 25, y);
+                ctx.lineTo(xOffset + graphWidth, y);
+                ctx.strokeStyle = "#ddd";
+                ctx.stroke();
+            }
+
+            // Draw schedule blocks
+            schedule.forEach(item => {
+                const startMin = timeToMinutes(item.start);
+                let endMin = timeToMinutes(item.end);
+                
+                // Clip to display range
+                const rangeStart = startHour * 60;
+                const rangeEnd = endHour * 60;
+                
+                if (endMin < rangeStart || startMin > rangeEnd) return;
+                
+                const displayStart = Math.max(startMin, rangeStart);
+                const displayEnd = Math.min(endMin, rangeEnd);
+
+                const yStart = padding + ((displayStart - rangeStart) / totalMinutes) * graphHeight;
+                const yEnd = padding + ((displayEnd - rangeStart) / totalMinutes) * graphHeight;
+                const height = yEnd - yStart;
+
+                // Draw Rect
+                ctx.fillStyle = colors[item.type] || "#ccc";
+                ctx.fillRect(xOffset, yStart, graphWidth, height);
+                
+                // Draw Border
+                ctx.strokeStyle = "#666";
+                ctx.lineWidth = 1;
+                ctx.strokeRect(xOffset, yStart, graphWidth, height);
+
+                // Draw Text
+                if (height > 15) {
+                    ctx.fillStyle = "#000";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.font = "12px sans-serif";
+                    ctx.fillText(item.title, xOffset + graphWidth / 2, yStart + height / 2);
+                    
+                    // Time range text if ample space
+                    if (height > 30) {
+                         ctx.font = "10px sans-serif";
+                         ctx.fillStyle = "#444";
+                         ctx.fillText(`${item.start} - ${item.end}`, xOffset + graphWidth / 2, yStart + height / 2 + 14);
+                    }
+                }
+            });
+        }
+
+        drawTimeline();
+    </script>
+</body>
+</html>

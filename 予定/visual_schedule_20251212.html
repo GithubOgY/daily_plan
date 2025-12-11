@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年12月12日 ビジュアルスケジュール</title>
+    <style>
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            padding: 20px;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .canvas-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            overflow-x: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        canvas {
+            /* background is handled in JS */
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+            font-size: 0.9em;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .legend-color {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.8em;
+            color: #666;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>📅 2025年12月12日 (金) 今日の予定</h1>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background:#3498db"></div>業務 (あじさい園)
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background:#e74c3c"></div>外出・移動
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background:#2ecc71"></div>休憩・食事
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background:#f1c40f"></div>自宅作業
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background:#9b59b6"></div>プライベート
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background:#34495e"></div>睡眠
+        </div>
+    </div>
+
+    <div class="canvas-container">
+        <canvas id="timelineCanvas" width="600" height="900"></canvas>
+    </div>
+
+    <div class="note">
+        ※時間は目安です。交通状況等により変動する可能性があります。
+    </div>
+
+    <script>
+        const schedule = [
+            { start: "06:00", end: "07:30", title: "叔父宅発・一時帰宅", type: "move" },
+            { start: "07:30", end: "07:45", title: "出勤移動", type: "move" },
+            { start: "07:45", end: "08:15", title: "始業準備", type: "work" },
+            { start: "08:15", end: "09:15", title: "🚚 園車送迎", type: "work" },
+            { start: "09:15", end: "09:30", title: "朝礼", type: "work" },
+            { start: "09:30", end: "10:00", title: "🔍 JPF検品", type: "work" },
+            { start: "10:00", end: "10:30", title: "📋 コーメー準備", type: "work" },
+            { start: "10:30", end: "10:45", title: "📦 払い出し", type: "work" }, // 移動含むが業務寄り
+            { start: "10:45", end: "12:00", title: "🔍 JPF検品(続)", type: "work" },
+            { start: "12:00", end: "12:45", title: "👥 利用者面談", type: "work" },
+            { start: "12:45", end: "13:00", title: "🍙 昼食", type: "break" },
+            { start: "13:00", end: "13:15", title: "移動(JPFへ)", type: "move" },
+            { start: "13:15", end: "13:45", title: "🏭 JPF納品", type: "work" },
+            { start: "13:45", end: "14:00", title: "移動(戻り)", type: "move" },
+            { start: "14:00", end: "17:00", title: "🏥 バイタル・事務", type: "work" },
+            { start: "17:00", end: "17:15", title: "🚗 帰宅移動", type: "move" },
+            { start: "17:15", end: "18:00", title: "💻 会計書類作成", type: "home_work" },
+            { start: "18:00", end: "19:00", title: "🍽 夕食", type: "private" },
+            { start: "19:00", end: "20:00", title: "🛁 入浴", type: "private" },
+            { start: "20:00", end: "22:00", title: "🛌 就寝", type: "sleep" }
+        ];
+
+        const colors = {
+            work: "#3498db",      // Blue
+            move: "#e74c3c",      // Red
+            break: "#2ecc71",     // Green
+            home_work: "#f1c40f", // Yellow
+            private: "#9b59b6",   // Purple
+            sleep: "#34495e"      // Dark Blue
+        };
+
+        const textColors = {
+            work: "#fff",
+            move: "#fff",
+            break: "#fff",
+            home_work: "#333",
+            private: "#fff",
+            sleep: "#fff"
+        };
+
+        function timeToMinutes(timeStr) {
+            const [h, m] = timeStr.split(':').map(Number);
+            return h * 60 + m;
+        }
+
+        const canvas = document.getElementById('timelineCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Settings
+        const startHour = 6;
+        const endHour = 22;
+        const totalMinutes = (endHour - startHour) * 60;
+
+        const padding = { top: 30, bottom: 30, left: 60, right: 20 };
+        const graphHeight = canvas.height - padding.top - padding.bottom;
+        const graphWidth = canvas.width - padding.left - padding.right; // Full width usage
+
+        function drawTimeline() {
+            // Background
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Time Axis (Vertical lines and text)
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+            ctx.font = "bold 14px Helvetica Neue";
+            ctx.fillStyle = "#7f8c8d";
+
+            for (let h = startHour; h <= endHour; h++) {
+                const y = padding.top + ((h - startHour) * 60 / totalMinutes) * graphHeight;
+
+                // Time Label
+                ctx.fillText(h + ":00", padding.left - 15, y);
+
+                // Grid line
+                ctx.beginPath();
+                ctx.moveTo(padding.left, y);
+                ctx.lineTo(canvas.width - padding.right, y);
+                ctx.strokeStyle = "#ecf0f1";
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            // Draw schedule blocks
+            schedule.forEach(item => {
+                const startMin = timeToMinutes(item.start);
+                let endMin = timeToMinutes(item.end);
+
+                // Clip
+                const rangeStart = startHour * 60;
+                const rangeEnd = endHour * 60;
+
+                if (endMin < rangeStart || startMin > rangeEnd) return;
+
+                const displayStart = Math.max(startMin, rangeStart);
+                const displayEnd = Math.min(endMin, rangeEnd);
+
+                const yStart = padding.top + ((displayStart - rangeStart) / totalMinutes) * graphHeight;
+                const yEnd = padding.top + ((displayEnd - rangeStart) / totalMinutes) * graphHeight;
+                const height = Math.max(yEnd - yStart, 2); // Minimum height visibility
+
+                const blockX = padding.left + 10;
+                const blockWidth = graphWidth - 20;
+
+                // Shadow
+                ctx.fillStyle = "rgba(0,0,0,0.1)";
+                ctx.fillRect(blockX + 2, yStart + 2, blockWidth, height);
+
+                // Main Rect
+                ctx.fillStyle = colors[item.type] || "#bdc3c7";
+                ctx.fillRect(blockX, yStart, blockWidth, height);
+
+                // Text
+                if (height > 12) {
+                    ctx.fillStyle = textColors[item.type] || "#fff";
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+
+                    const fontSize = Math.min(14, height - 4);
+                    ctx.font = `bold ${fontSize}px Helvetica Neue`;
+
+                    const textY = yStart + height / 2;
+                    ctx.fillText(item.title, blockX + blockWidth / 2, textY);
+
+                    // Time range (only if enough space)
+                    if (height > 35) {
+                        ctx.font = "11px Helvetica Neue";
+                        ctx.fillStyle = "rgba(255,255,255,0.9)";
+                        if (item.type === 'home_work') ctx.fillStyle = "rgba(0,0,0,0.6)";
+                        ctx.fillText(`${item.start} - ${item.end}`, blockX + blockWidth / 2, textY + 12);
+                    }
+                }
+            });
+
+            // "Current Time" Line (Simulation for static view, or just visual aid)
+            // No current time line needed as this is a plan view
+        }
+
+        drawTimeline();
+    </script>
+</body>
+
+</html>
