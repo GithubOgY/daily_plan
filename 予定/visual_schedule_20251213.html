@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025年12月13日 スケジュール可視化</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        canvas {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>2025年12月13日（土） 一日の予定</h1>
+        <canvas id="scheduleCanvas" width="800" height="1000"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('scheduleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Schedule Data
+        const schedule = [
+            { start: "08:30", end: "08:45", title: "出勤・準備", type: "work" },
+            { start: "08:45", end: "09:00", title: "朝礼", type: "meeting" },
+            { start: "09:00", end: "10:30", title: "通常業務", type: "work" },
+            { start: "10:30", end: "11:30", title: "★職員会議（報酬・加算）", type: "meeting" },
+            { start: "11:30", end: "12:00", title: "通常業務（引き継ぎ）", type: "work" },
+            { start: "12:00", end: "12:45", title: "昼休憩", type: "break" },
+            { start: "12:45", end: "13:00", title: "通常業務", type: "work" },
+            { start: "13:00", end: "14:00", title: "★送迎業務", type: "drive" },
+            { start: "14:00", end: "15:00", title: "★職員研修・終礼", type: "meeting" },
+            { start: "15:00", end: "15:15", title: "移動（帰宅）", type: "travel" },
+            { start: "15:15", end: "17:30", title: "会計処理", type: "personal_work" },
+            { start: "17:30", end: "18:00", title: "プログラム学習", type: "study" },
+            { start: "18:00", end: "19:00", title: "夕食", type: "break" },
+            { start: "19:00", end: "19:30", title: "プログラム学習", type: "study" },
+            { start: "19:30", end: "20:00", title: "入浴・就寝準備", type: "personal" },
+            { start: "20:00", end: "24:00", title: "就寝", type: "sleep" }
+        ];
+
+        // Configuration
+        const startTime = "08:00";
+        const endTime = "21:00"; // Display until 21:00 for visible range, though sleep starts at 20:00
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const padding = 60;
+        const contentWidth = canvasWidth - padding * 2;
+        const contentHeight = canvasHeight - padding * 2;
+        const headerHeight = 40;
+
+        // Helper to convert time string "HH:MM" to minutes from 00:00
+        function timeToMinutes(timeStr) {
+            const [hours, minutes] = timeStr.split(':').map(Number);
+            return hours * 60 + minutes;
+        }
+
+        const startMinutes = timeToMinutes(startTime);
+        const endMinutes = timeToMinutes(endTime);
+        const totalMinutes = endMinutes - startMinutes;
+
+        // Color Palette
+        const colors = {
+            work: { bg: '#E3F2FD', border: '#2196F3', text: '#0D47A1' }, // Blue
+            meeting: { bg: '#F3E5F5', border: '#9C27B0', text: '#4A148C' }, // Purple
+            drive: { bg: '#FFF3E0', border: '#FF9800', text: '#E65100' }, // Orange
+            break: { bg: '#E8F5E9', border: '#4CAF50', text: '#1B5E20' }, // Green
+            travel: { bg: '#ECEFF1', border: '#607D8B', text: '#263238' }, // Grey
+            personal_work: { bg: '#E0F7FA', border: '#00BCD4', text: '#006064' }, // Cyan
+            study: { bg: '#FFF8E1', border: '#FFC107', text: '#FF6F00' }, // Amber
+            personal: { bg: '#FCE4EC', border: '#E91E63', text: '#880E4F' }, // Pink
+            sleep: { bg: '#37474F', border: '#263238', text: '#CFD8DC' } // Dark
+        };
+
+        function drawSchedule() {
+            // clear canvas
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+            // Draw axis line
+            ctx.beginPath();
+            ctx.moveTo(padding + 60, padding + headerHeight);
+            ctx.lineTo(padding + 60, canvasHeight - padding);
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Draw content
+            schedule.forEach(item => {
+                const itemStart = timeToMinutes(item.start);
+                const itemEnd = timeToMinutes(item.end);
+
+                // Skip if out of range
+                if (itemEnd <= startMinutes || itemStart >= endMinutes) return;
+
+                // Clamp to view
+                const visibleStart = Math.max(itemStart, startMinutes);
+                const visibleEnd = Math.min(itemEnd, endMinutes);
+
+                // Calculate positions
+                const yStart = padding + headerHeight + ((visibleStart - startMinutes) / totalMinutes) * (contentHeight - headerHeight);
+
+                // Calculate height, ensuring minimum height for visibility
+                let height = ((visibleEnd - visibleStart) / totalMinutes) * (contentHeight - headerHeight);
+                // Adjust for very short events to be visible (e.g. 15 mins)
+                const minHeightIsSmall = height < 20;
+
+                const x = padding + 80;
+                const width = contentWidth - 80;
+                const radius = 6;
+
+                const style = colors[item.type] || colors.work;
+
+                // Draw Box
+                ctx.fillStyle = style.bg;
+                ctx.strokeStyle = style.border;
+                ctx.lineWidth = 1;
+
+                // Rounded rect
+                ctx.beginPath();
+                ctx.roundRect(x, yStart, width, height, radius);
+                ctx.fill();
+                ctx.stroke();
+
+                // Draw Time Label
+                ctx.fillStyle = '#666';
+                ctx.font = 'bold 12px "Helvetica Neue", Arial, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.textBaseline = 'top';
+                ctx.fillText(item.start, x - 15, yStart + 2);
+
+                // Draw Event Content
+                ctx.fillStyle = style.text;
+                ctx.textAlign = 'left';
+
+                const textX = x + 10;
+                const textY = yStart + (height / 2);
+
+                // If box is small, draw text differently
+                if (minHeightIsSmall) {
+                    ctx.font = '12px "Helvetica Neue", Arial, sans-serif';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(`${item.title} (${item.start}-${item.end})`, textX, textY);
+                } else {
+                    ctx.font = 'bold 14px "Helvetica Neue", Arial, sans-serif';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.title, textX, textY - 2);
+
+                    // Duration or extra info?
+                    ctx.font = '11px "Helvetica Neue", Arial, sans-serif';
+                    ctx.fillStyle = style.text;
+                    ctx.globalAlpha = 0.8;
+                    // ctx.fillText(duration text if needed, textX, textY + 12);
+                    ctx.globalAlpha = 1.0;
+                }
+            });
+
+            // Draw hour markers
+            for (let m = startMinutes; m <= endMinutes; m += 60) {
+                const y = padding + headerHeight + ((m - startMinutes) / totalMinutes) * (contentHeight - headerHeight);
+
+                // Don't draw over the last event boundary unnecessarily, but good for reference
+                if (m > startMinutes && m < endMinutes) {
+                    ctx.beginPath();
+                    ctx.moveTo(padding + 55, y);
+                    ctx.lineTo(padding + 65, y);
+                    ctx.strokeStyle = '#aaa';
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Polyfill for roundRect if not supported
+        if (!CanvasRenderingContext2D.prototype.roundRect) {
+            CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+                if (w < 2 * r) r = w / 2;
+                if (h < 2 * r) r = h / 2;
+                this.beginPath();
+                this.moveTo(x + r, y);
+                this.arcTo(x + w, y, x + w, y + h, r);
+                this.arcTo(x + w, y + h, x, y + h, r);
+                this.arcTo(x, y + h, x, y, r);
+                this.arcTo(x, y, x + w, y, r);
+                this.closePath();
+                return this;
+            }
+        }
+
+        // Run
+        drawSchedule();
+
+    </script>
+</body>
+
+</html>
